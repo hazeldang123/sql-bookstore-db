@@ -1,0 +1,59 @@
+-- Tạo bảng Brands
+CREATE TABLE Brands ( BrandID INT PRIMARY KEY, BrandName NVARCHAR(255) NOT NULL ); 
+-- Tạo bảng Accounts 
+CREATE TABLE Accounts ( AccountID INT PRIMARY KEY, Username NVARCHAR(50) NOT NULL, 
+FullName NVARCHAR(100) NOT NULL, Password NVARCHAR(255) NOT NULL, Email NVARCHAR(100) NOT NULL, 
+Phone NVARCHAR(20), Address NVARCHAR(255), AccountType NVARCHAR(50) NOT NULL ); 
+-- Tạo bảng Consumer 
+CREATE TABLE Consumers ( ConsumerID INT PRIMARY KEY, AccountID INT NOT NULL, 
+FOREIGN KEY (AccountID) REFERENCES Accounts(AccountID) ON DELETE CASCADE ON UPDATE CASCADE ); 
+-- Tạo bảng Sellers 
+CREATE TABLE Sellers ( SellerID INT PRIMARY KEY, AccountID INT NOT NULL, 
+FOREIGN KEY (AccountID) REFERENCES Accounts(AccountID) ON DELETE 
+CASCADE ON UPDATE CASCADE ); 
+-- Tạo bảng Products 
+CREATE TABLE Products ( ProductID INT PRIMARY KEY, BrandID INT, 
+SellerID INT, 
+ProductName NVARCHAR(255) NOT NULL, 
+QuantityInStock INT NOT NULL, 
+UnitPrice DECIMAL(10, 2) NOT NULL,  
+Origin NVARCHAR(50) NOT NULL, 
+Description TEXT, 
+Image NVARCHAR(255), 
+FOREIGN KEY (BrandID) REFERENCES Brands(BrandID) ON DELETE 
+CASCADE ON UPDATE CASCADE, 
+FOREIGN KEY (SellerID) REFERENCES Sellers(SellerID) ON 
+DELETE CASCADE ON UPDATE CASCADE ); 
+-- Tạo bảng Categories 
+CREATE TABLE Categories ( CategoryID INT PRIMARY KEY, CategoryName NVARCHAR(255) NOT NULL ); 
+-- Tạo bảng ProductsCategories 
+CREATE TABLE ProductsCategories ( ProductID INT, CategoryID INT, 
+PRIMARY KEY (ProductID, CategoryID), 
+FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE 
+CASCADE ON UPDATE CASCADE, 
+FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID) ON DELETE 
+CASCADE ON UPDATE CASCADE ); 
+-- Tạo bảng Orders 
+CREATE TABLE Orders ( OrderID INT PRIMARY KEY, ConsumerID INT NOT NULL, 
+FullName NVARCHAR(100) NOT NULL, OrderDate DATE NOT NULL, 
+DeliveredDate DATE, Status NVARCHAR(50) NOT NULL, 
+FOREIGN KEY (ConsumerID) REFERENCES Consumers(ConsumerID) ON DELETE CASCADE  ); 
+-- Tạo bảng OrderDetails 
+CREATE TABLE OrderDetails ( OrderID INT, ProductID INT, 
+Quantity INT NOT NULL, Discount DECIMAL(5, 2) NOT NULL, 
+PRIMARY KEY (OrderID, ProductID), 
+FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE 
+ON UPDATE CASCADE, 
+FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE NO 
+ACTION ON UPDATE CASCADE ); 
+-- Tạo bảng Ratings 
+CREATE TABLE Ratings ( 
+RatingID INT PRIMARY KEY, 
+ConsumerID INT NOT NULL, 
+ProductID INT NOT NULL, 
+Rating FLOAT NOT NULL, 
+Review TEXT, 
+FOREIGN KEY (ConsumerID) REFERENCES Consumers(ConsumerID) ON 
+DELETE CASCADE ON UPDATE CASCADE, 
+FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE NO 
+ACTION ON UPDATE NO ACTION );
