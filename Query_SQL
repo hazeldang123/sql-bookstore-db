@@ -1,0 +1,39 @@
+-- a. Find products that have never been purchased. Display: Product name, Category name, Brand name, Supplier name.
+SELECT Products.ProductName as  'Tên sản phẩm' , Categories.CategoryName as  'Tên 
+danh mục' , Brands.BrandName as  'Tên thương hiệu'  , Accounts.FullName as  'Tên nhà 
+cung cấp' 
+FROM Accounts JOIN Sellers ON Accounts.AccountID=Sellers.AccountID 
+JOIN Products ON Products.SellerID = Sellers.SellerID 
+JOIN ProductsCategories ON ProductsCategories.ProductID=Products.ProductID 
+JOIN Categories ON Categories.CategoryID=ProductsCategories.CategoryID 
+JOIN Brands ON Brands.BrandID=Products.BrandID 
+WHERE Products.ProductID NOT IN 
+(SELECT Products.ProductID 
+FROM OrderDetails JOIN Products ON OrderDetails.ProductID=Products.ProductID)  
+ORDER BY Products.ProductID 
+
+-- b. Get the product with the highest average rating for each brand. Display: Brand name, Product name, Average rating.
+SELECT B.BrandName AS 'Tên thương hiệu', P.ProductName as 'Tên sản phẩm', 
+AVG(R.RATING) as 'Điểm đánh giá trung bình' 
+FROM Brands B JOIN Products P ON B.BrandID = P.BrandID  
+JOIN Ratings R on P.ProductID = R.ProductID 
+GROUP BY B.BrandID, B.BrandName, P.ProductID, P.ProductName 
+HAVING AVG(R.RATING) >= ALL (SELECT AVG(R1.RATING) 
+FROM Products P1 JOIN Ratings R1 ON P1.ProductID = R1.ProductID 
+WHERE P1.BrandID = B.BrandID 
+GROUP BY P1.ProductID);
+
+-- c. Calculate monthly revenue for seller "Fahasa" in 2023 (only successful orders). Display: Month, Total revenue.
+SELECT  
+MONTH(O.OrderDate) AS 'Tháng', 
+SUM(OD.Quantity * P.UnitPrice * (1 - OD.Discount)) AS 'Tổng doanh thu' 
+FROM Orders O 
+JOIN OrderDetails OD ON O.OrderID = OD.OrderID JOIN Products P ON OD.ProductID 
+= P.ProductID 
+JOIN Sellers S ON P.SellerID = S.SellerID JOIN Accounts A ON S.AccountID = 
+A.AccountID 
+WHERE  
+A.Username = 'Fahasa' 
+AND O.Status = 'Delivered' 
+AND YEAR(O.OrderDate) = 2023 
+GROUP BY MONTH(O.OrderDate); 
